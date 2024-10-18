@@ -1,0 +1,9 @@
+Message,Str1,Str2
+single line with comma and double quotes,"""hello, World""",
+single line with comma,"hello, world",
+two columns: first ending with comma,"""hello, ","world"""
+two columns: second starting with comma,"""hello",", world"""
+two Columns,"""hello","world"""
+single double quote in the middle,"hello "" world",
+single double quote,"""",
+,,
