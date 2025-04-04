@@ -97,7 +97,7 @@ namespace CSVParser
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < values.Count; i++)
             {
-                sb.Append(EscapeCsvValue(values[i]));
+                sb.Append(EscapeCSV(values[i]));
                 if (i < values.Count - 1)
                 {
                     sb.Append(",");

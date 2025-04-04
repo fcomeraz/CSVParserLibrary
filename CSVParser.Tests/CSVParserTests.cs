@@ -74,7 +74,7 @@ namespace CSVParser.Tests
             string value = null;
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("", result);
@@ -87,7 +87,7 @@ namespace CSVParser.Tests
             string value = "";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("", result);
@@ -100,7 +100,7 @@ namespace CSVParser.Tests
             string value = "hello, world";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("\"hello, world\"", result);
@@ -113,7 +113,7 @@ namespace CSVParser.Tests
             string value = "hello \"world\"";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("\"hello \"\"world\"\"\"", result);
@@ -126,7 +126,7 @@ namespace CSVParser.Tests
             string value = "hello\nworld";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("\"hello\nworld\"", result);
@@ -139,7 +139,7 @@ namespace CSVParser.Tests
             string value = "hello\rworld";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("\"hello\rworld\"", result);
@@ -152,7 +152,7 @@ namespace CSVParser.Tests
             string value = "helloworld";
 
             // Act
-            var result = CSVParser.EscapeCsvValue(value);
+            var result = CSVParser.EscapeCSV(value);
 
             // Assert
             Assert.Equal("helloworld", result);
