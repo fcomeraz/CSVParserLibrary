@@ -4,6 +4,7 @@ namespace CSVParser
 {
     public class CSVParser
     {
+        #region Public Members
         public static List<List<String>> ParseCSV(StreamReader csvContent)
         {
             List<List<string>> lines = new List<List<string>>();
@@ -30,6 +31,84 @@ namespace CSVParser
             }
         }
 
+        public static void ExportToCSVFile(List<List<string>> items, string filePath, bool overwrite = false)
+        {
+            ExportToCSVFile(items, filePath, EscapeStringArrayToCSVLine, overwrite);
+        }
+
+        public static void ExportToCSVFile<T>(List<T> items, string filePath, Func<T, string> convertToCsvLine, bool overwrite = false)
+        {
+            FileMode fileMode = overwrite ? FileMode.Create : FileMode.Append;
+            using (FileStream fs = new FileStream(filePath, fileMode, FileAccess.Write))
+            using (StreamWriter writer = new StreamWriter(fs))
+            {
+                ExportToCSVFile(items, writer, convertToCsvLine);
+            }
+        }
+
+        public static void ExportToCSVFile(List<List<string>> items, StreamWriter writer)
+        {
+            ExportToCSVFile(items, writer, EscapeStringArrayToCSVLine);
+        }
+
+        public static void ExportToCSVFile<T>(List<T> items, StreamWriter writer, Func<T, string> convertToCsvLine)
+        {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+            if (convertToCsvLine == null) throw new ArgumentNullException(nameof(convertToCsvLine));
+            if (writer == null) throw new ArgumentNullException(nameof(writer));
+            try
+            {
+                foreach (var (item, index) in items.Select((value, i) => (value, i)))
+                {
+                    if(index == items.Count - 1)
+                    {
+                        writer.Write(convertToCsvLine(item));
+                    }
+                    else
+                    {
+                        writer.WriteLine(convertToCsvLine(item));
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                throw new InvalidOperationException("An error occurred while writing to the stream.", ex);
+            }
+        }
+
+        public static string EscapeCSV(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return "";
+            }
+
+            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
+            {
+                value = value.Replace("\"", "\"\"");
+                return $"\"{value}\"";
+            }
+
+            return value;
+        }
+
+        public static string EscapeStringArrayToCSVLine(List<String> values)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < values.Count; i++)
+            {
+                sb.Append(EscapeCsvValue(values[i]));
+                if (i < values.Count - 1)
+                {
+                    sb.Append(",");
+                }
+            }
+            return sb.ToString();
+        }
+
+        #endregion
+
+        #region Private Members
         private static List<string> ParseLine(string? line)
         {
             if (line == null)
@@ -145,6 +224,7 @@ namespace CSVParser
             }
 
             throw new Exception("Invalid CSV format");
-        }
+        } 
+        #endregion
     }
 }

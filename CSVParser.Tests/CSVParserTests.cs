@@ -4,6 +4,9 @@ namespace CSVParser.Tests
 {
     public class CSVParserTests
     {
+        const string OUTPUT_FILE = "output.csv";
+        const string SOURCE_FILE = "TestFile.csv";
+
         #region CSVParser_ParseCSV_Tests
         [Fact]
         public void CSVParser_ParseCSV_ReturnsNull_IfCSVContentIsNull()
@@ -60,6 +63,165 @@ namespace CSVParser.Tests
             Assert.Equal(expectedResult, result);
         }
 
+
+        #endregion
+
+        #region CSVParser_EscapeCsvValue_Tests
+        [Fact]
+        public void CSVParser_EscapeCsvValue_ReturnsEmptyString_IfValueIsNull()
+        {
+            // Arrange
+            string value = null;
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_ReturnsEmptyString_IfValueIsEmpty()
+        {
+            // Arrange
+            string value = "";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_EscapesValueWithComma()
+        {
+            // Arrange
+            string value = "hello, world";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("\"hello, world\"", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_EscapesValueWithDoubleQuote()
+        {
+            // Arrange
+            string value = "hello \"world\"";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("\"hello \"\"world\"\"\"", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_EscapesValueWithNewLine()
+        {
+            // Arrange
+            string value = "hello\nworld";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("\"hello\nworld\"", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_EscapesValueWithCarriageReturn()
+        {
+            // Arrange
+            string value = "hello\rworld";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("\"hello\rworld\"", result);
+        }
+
+        [Fact]
+        public void CSVParser_EscapeCsvValue_DoesNotEscapeSimpleValue()
+        {
+            // Arrange
+            string value = "helloworld";
+
+            // Act
+            var result = CSVParser.EscapeCsvValue(value);
+
+            // Assert
+            Assert.Equal("helloworld", result);
+        }
+        #endregion
+
+        #region CSVParser_ExportToCSV_Tests
+
+        [Fact]
+        public void CSVParser_ExportToCSV_ThrowsArgumentNullException_IfItemsIsNull()
+        {
+            // Arrange
+            List<string> items = null;
+            string filePath = "output.csv";
+            Func<string, string> convertToCsvLine = s => s;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => CSVParser.ExportToCSVFile(items, filePath, convertToCsvLine));
+        }
+
+
+
+        [Fact]
+        public void CSVParser_ExportToCSV_ThrowsArgumentNullException_IfConvertToCsvLineIsNull()
+        {
+            // Arrange
+            List<string> items = new List<string> { "item1", "item2" };
+            string filePath = "output.csv";
+            Func<string, string> convertToCsvLine = null;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => CSVParser.ExportToCSVFile(items, filePath, convertToCsvLine));
+        }
+
+        [Fact]
+        public void CSVParser_ExportToCSV_ThrowsArgumentException_IfFilePathIsNullOrWhitespace()
+        {
+            // Arrange
+            List<string> items = new List<string> { "item1", "item2" };
+            string filePath = " ";
+            Func<string, string> convertToCsvLine = s => s;
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => CSVParser.ExportToCSVFile(items, filePath, convertToCsvLine));
+        }
+
+        [Fact]
+        public void CSVParser_ExportToCSV_ExportsAValidCSVFile()
+        {
+            //Arrange - variables, classes, mocks
+            StreamReader csvFile = new StreamReader(SOURCE_FILE);
+            var CSVData = CSVParser.ParseCSV(csvFile);
+
+            // Act
+            CSVParser.ExportToCSVFile(CSVData, OUTPUT_FILE, true);
+            StreamReader csvOutputFile = new StreamReader(OUTPUT_FILE);
+            var result = CSVParser.ParseCSV(csvOutputFile);
+
+
+            // Assert
+            Assert.Equal(CSVData, result);
+
+            // Clean up
+            if (File.Exists(OUTPUT_FILE))
+            {
+                File.Delete(OUTPUT_FILE);
+            }
+
+        }
 
         #endregion
 
@@ -228,8 +390,6 @@ namespace CSVParser.Tests
             Assert.Equal(expected, result);
         }
         #endregion
-
-
 
     }
 }
